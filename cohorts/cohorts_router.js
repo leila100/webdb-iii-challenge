@@ -16,6 +16,23 @@ router.get("/", (req, res) => {
     )
 })
 
+router.get("/:id", (req, res) => {
+  cohortDB
+    .findById(req.params.id)
+    .then(cohort => {
+      if (cohort) res.status(200).json(cohort)
+      else
+        res
+          .status(400)
+          .json({ errorMessage: "Please provide a valid id for the cohort." })
+    })
+    .catch(err =>
+      res
+        .status(500)
+        .json({ error: "The cohort information could not be retrieved." })
+    )
+})
+
 router.post("/", (req, res) => {
   const cohort = req.body
   if (!cohort.name) {
