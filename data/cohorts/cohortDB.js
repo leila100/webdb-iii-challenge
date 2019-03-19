@@ -7,7 +7,8 @@ module.exports = {
   findById,
   findStudentsById,
   insert,
-  update
+  update,
+  remove
 }
 
 function find() {
@@ -34,4 +35,10 @@ function update(id, cohort) {
   return db("cohorts")
     .where("id", Number(id))
     .update(cohort)
+}
+
+function remove(id) {
+  return db("cohorts")
+    .where("id", Number(id))
+    .del()
 }
