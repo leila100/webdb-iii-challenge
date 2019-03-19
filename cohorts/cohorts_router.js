@@ -33,6 +33,31 @@ router.get("/:id", (req, res) => {
     )
 })
 
+router.get("/:id/students", (req, res) => {
+  // Check to be sure the cohort exist
+  cohortDB
+    .findById(req.params.id)
+    .then(cohort => {
+      if (cohort) {
+        cohortDB.findStudentsById(req.params.id).then(students => {
+          if (students.length > 0) res.status(200).json(students)
+          else
+            res.status(400).json({
+              errorMessage: "There are no students attending this cohort."
+            })
+        })
+      } else
+        res
+          .status(400)
+          .json({ errorMessage: "Please provide a valid id for the cohort." })
+    })
+    .catch(err =>
+      res
+        .status(500)
+        .json({ error: "The cohort information could not be retrieved." })
+    )
+})
+
 router.post("/", (req, res) => {
   const cohort = req.body
   if (!cohort.name) {
