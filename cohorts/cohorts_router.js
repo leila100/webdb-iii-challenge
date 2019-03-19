@@ -77,4 +77,36 @@ router.post("/", (req, res) => {
       )
   }
 })
+
+router.put("/:id", (req, res) => {
+  // Check to be sure the cohort exist
+  cohortDB
+    .findById(req.params.id)
+    .then(cohort => {
+      if (cohort) {
+        const cohortInfo = req.body
+        const { id } = req.params
+        // Check to be sure the data is valid
+        if (!cohortInfo.name) {
+          res
+            .status(400)
+            .json({ errorMessage: "Please provide name for the cohort." })
+        } else {
+          cohortDB.update(id, cohortInfo).then(count => {
+            res.status(200).json(count)
+          })
+        }
+      } else {
+        res
+          .status(400)
+          .json({ errorMessage: "Please provide a valid id for the cohort." })
+      }
+    })
+    .catch(err => {
+      res
+        .status(500) // 500: Server Error
+        .json({ error: "The cohort information could not be modified." })
+    })
+})
+
 module.exports = router
