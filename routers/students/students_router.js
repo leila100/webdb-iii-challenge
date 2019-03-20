@@ -57,10 +57,19 @@ router.post("/", (req, res) => {
       errorMessage: "Please provide name and cohort_id for the student."
     })
   } else {
-    studentDB
-      .insert(studentInfo)
-      .then(studentId => {
-        res.status(201).json(studentId)
+    // Check that the cohort id exist
+    cohortDB
+      .findById(studentInfo.cohort_id)
+      .then(cohort => {
+        if (cohort) {
+          studentDB.insert(studentInfo).then(studentId => {
+            res.status(201).json(studentId)
+          })
+        } else {
+          res
+            .status(400)
+            .json({ errorMessage: "Please provide a valid id for the cohort." })
+        }
       })
       .catch(err =>
         res.status(500).json({
