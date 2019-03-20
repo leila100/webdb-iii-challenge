@@ -21,8 +21,15 @@ function insert(student) {
 }
 
 function findById(id) {
-  return db("students")
-    .where({ id: Number(id) })
+  return db
+    .select(
+      "students.id as id",
+      "students.name as name",
+      "cohorts.name as cohort"
+    )
+    .from("students")
+    .where("students.id", Number(id))
+    .join("cohorts", { "students.cohort_id": "cohorts.id" })
     .first()
 }
 

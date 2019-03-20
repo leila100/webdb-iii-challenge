@@ -23,21 +23,7 @@ router.get("/:id", (req, res) => {
     .findById(id)
     .then(student => {
       if (student) {
-        const cohortId = student.cohort_id
-        let returnedStudent = {
-          id: student.id,
-          name: student.name,
-          cohort: ""
-        }
-        cohortDB
-          .findById(cohortId)
-          .then(cohort => {
-            if (cohort) {
-              returnedStudent.cohort = cohort.name
-            }
-            res.status(200).json(returnedStudent)
-          })
-          .catch(err => console.log(err))
+        res.status(200).json(student)
       } else
         res
           .status(400)
