@@ -1,0 +1,125 @@
+const express = require("express")
+const router = express.Router()
+
+const studentDB = require("../../data/students/studentDB")
+const cohortDB = require("../../data/cohorts/cohortDB")
+
+router.get("/", (req, res) => {
+  studentDB
+    .find()
+    .then(students => {
+      res.status(200).json(students)
+    })
+    .catch(err =>
+      res
+        .status(500)
+        .json({ error: "The students information could not be retrieved." })
+    )
+})
+
+router.get("/:id", (req, res) => {
+  const { id } = req.params
+  studentDB
+    .findById(id)
+    .then(student => {
+      if (student) {
+        res.status(200).json(student)
+      } else
+        res
+          .status(400)
+          .json({ errorMessage: "Please provide a valid id for the student." })
+    })
+    .catch(err =>
+      res
+        .status(500)
+        .json({ error: "The student information could not be retrieved." })
+    )
+})
+
+router.post("/", (req, res) => {
+  const studentInfo = req.body
+  if (!studentInfo.name || !studentInfo.cohort_id) {
+    res.status(400).json({
+      errorMessage: "Please provide name and cohort_id for the student."
+    })
+  } else {
+    // Check that the cohort id exist
+    cohortDB
+      .findById(studentInfo.cohort_id)
+      .then(cohort => {
+        if (cohort) {
+          studentDB.insert(studentInfo).then(studentId => {
+            res.status(201).json(studentId)
+          })
+        } else {
+          res
+            .status(400)
+            .json({ errorMessage: "Please provide a valid id for the cohort." })
+        }
+      })
+      .catch(err =>
+        res.status(500).json({
+          error: "There was an error while saving the student to the database"
+        })
+      )
+  }
+})
+
+router.put("/:id", (req, res) => {
+  const studentInfo = req.body
+  const { id } = req.params
+  // Check to be sure the data is valid
+  if (!studentInfo.name || !studentInfo.cohort_id) {
+    res.status(400).json({
+      errorMessage: "Please provide name and cohort_id for the student."
+    })
+  } else {
+    // Check that the cohort id exist
+    cohortDB
+      .findById(studentInfo.cohort_id)
+      .then(cohort => {
+        if (cohort) {
+          studentDB.update(id, studentInfo).then(count => {
+            if (count > 0) {
+              res.status(200).json(count)
+            } else {
+              res.status(400).json({
+                errorMessage: "Please provide a valid id for the student."
+              })
+            }
+          })
+        } else {
+          res
+            .status(400)
+            .json({ errorMessage: "Please provide a valid id for the cohort." })
+        }
+      })
+      .catch(err => {
+        res
+          .status(500) // 500: Server Error
+          .json({ error: "The student information could not be modified." })
+      })
+  }
+})
+
+router.delete("/:id", (req, res) => {
+  const { id } = req.params
+  studentDB
+    .remove(id)
+    .then(count => {
+      if (count > 0) {
+        res.status(200).json(count)
+      } else {
+        res
+          .status(400)
+          .json({ errorMessage: "Please provide a valid id for the student." })
+      }
+    })
+    .catch(err =>
+      res
+        .status(500) // 500: Server Error
+        .json({ error: "The student could not be removed" })
+    )
+})
+
+module.exports = router
